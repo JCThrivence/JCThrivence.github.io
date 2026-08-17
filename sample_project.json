@@ -1,0 +1,52 @@
+{
+  "version": 2,
+  "name": "Sample Governance Project",
+  "client": "Sample Client",
+  "targetMargin": 50,
+  "resourceIds": [
+    "1",
+    "2"
+  ],
+  "phases": [
+    {
+      "id": "phase-discovery",
+      "name": "Discovery",
+      "startDate": "2026-09-01",
+      "endDate": "2026-09-18",
+      "assignments": [
+        {
+          "id": "a1",
+          "resourceId": "1",
+          "hoursPerWeek": 0,
+          "billingRate": 275
+        },
+        {
+          "id": "a2",
+          "resourceId": "2",
+          "hoursPerWeek": 0,
+          "billingRate": 175
+        }
+      ]
+    },
+    {
+      "id": "phase-design",
+      "name": "Design",
+      "startDate": "2026-09-21",
+      "endDate": "2026-10-16",
+      "assignments": [
+        {
+          "id": "a3",
+          "resourceId": "1",
+          "hoursPerWeek": 0,
+          "billingRate": 275
+        },
+        {
+          "id": "a4",
+          "resourceId": "2",
+          "hoursPerWeek": 0,
+          "billingRate": 175
+        }
+      ]
+    }
+  ]
+}

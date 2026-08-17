@@ -1,114 +1,252 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GitHub Pages Test</title>
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-      color: #f1f5f9;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-    }
-
-    .card {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 16px;
-      padding: 48px;
-      max-width: 480px;
-      text-align: center;
-      backdrop-filter: blur(10px);
-    }
-
-    h1 {
-      font-size: 1.75rem;
-      margin-bottom: 12px;
-    }
-
-    p {
-      color: #94a3b8;
-      margin-bottom: 24px;
-      line-height: 1.5;
-    }
-
-    .status {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(34, 197, 94, 0.15);
-      color: #4ade80;
-      padding: 8px 16px;
-      border-radius: 999px;
-      font-size: 0.9rem;
-      font-weight: 500;
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #4ade80;
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.4; }
-    }
-
-    .timestamp {
-      margin-top: 24px;
-      font-size: 0.8rem;
-      color: #64748b;
-    }
-
-    button {
-      margin-top: 20px;
-      background: #3b82f6;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    button:hover {
-      background: #2563eb;
-    }
-  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project Pricing Tool</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="card">
-    <h1>🚀 It's live!</h1>
-    <p>If you're seeing this, your GitHub Pages deployment is working correctly.</p>
-    <div class="status">
-      <span class="dot"></span>
-      Site is up
+  <div id="unlockOverlay" class="unlock-overlay">
+    <div class="unlock-card">
+      <div class="unlock-mark">T</div>
+      <div class="eyebrow dark">PROJECT ESTIMATOR</div>
+      <h1>Unlock Pricing Tool</h1>
+      <p>Enter the pricing-data password to load the current resource roster and calculate project margins.</p>
+      <label>
+        <span>Pricing Data Password</span>
+        <input id="unlockPassword" type="password" autocomplete="current-password" placeholder="Enter password" />
+      </label>
+      <button class="btn primary unlock-btn" id="unlockBtn">Unlock</button>
+      <div id="unlockMessage" class="unlock-message"></div>
+      <small>The password is not stored in this package or saved by the browser.</small>
     </div>
-    <div class="timestamp" id="timestamp"></div>
-    <br>
-    <button onclick="document.getElementById('click-count').textContent = Number(document.getElementById('click-count').textContent) + 1">
-      Clicked <span id="click-count">0</span> times
-    </button>
   </div>
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">PROJECT ESTIMATOR</div>
+      <h1>Project Pricing Tool</h1>
+      <p>Define the engagement, build the project team once, then allocate each resource across project phases.</p>
+    </div>
+    <div class="toolbar no-print">
+      <button class="btn secondary" id="loadProjectBtn">Open Project</button>
+      <button class="btn secondary" id="saveProjectBtn">Save Project JSON</button>
+      <button class="btn primary" id="printBtn">Export Report / PDF</button>
+    </div>
+  </header>
 
-  <script>
-    document.getElementById('timestamp').textContent =
-      'Page loaded at ' + new Date().toLocaleString();
+  <main class="shell">
+    <section class="card project-card">
+      <div class="section-heading">
+        <div>
+          <div class="step-label">Project Setup</div>
+          <h2>Project Details</h2>
+          <p>Define the engagement and target margin.</p>
+        </div>
+        <div class="status-dot" id="saveStatus">New project</div>
+      </div>
+      <div class="project-grid">
+        <label>
+          <span>Project Name</span>
+          <input id="projectName" type="text" placeholder="e.g., SharePoint Governance Implementation" />
+        </label>
+        <label>
+          <span>Client</span>
+          <input id="clientName" type="text" placeholder="e.g., ABC Company" />
+        </label>
+        <label>
+          <span>Target Margin %</span>
+          <input id="targetMargin" type="number" min="0" max="100" step="0.1" />
+        </label>
+      </div>
+    </section>
+
+    <section class="metrics-grid" id="projectMetrics"></section>
+
+    <section class="card">
+      <div class="section-heading">
+        <div>
+          <div class="step-label">Step 1</div>
+          <h2>Define Project Phases</h2>
+          <p>Create the project timeline first. Resources added later will automatically be included in every phase.</p>
+        </div>
+        <button class="btn primary no-print" id="addPhaseBtn">+ Add Phase</button>
+      </div>
+      <div class="table-wrap">
+        <table class="setup-table phase-definition-table">
+          <thead>
+            <tr>
+              <th>Phase</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Planning Weeks</th>
+              <th class="no-print"></th>
+            </tr>
+          </thead>
+          <tbody id="phaseDefinitionBody"></tbody>
+        </table>
+      </div>
+      <div id="phaseDefinitionEmpty" class="empty-state" hidden>No phases yet. Add your first project phase.</div>
+    </section>
+
+    <section class="card">
+      <div class="section-heading">
+        <div>
+          <div class="step-label">Step 2</div>
+          <h2>Build Project Team</h2>
+          <p>Add each resource once. Every selected resource is automatically added to every phase with 0 hours/week.</p>
+        </div>
+        <button class="btn primary no-print" id="addProjectResourceBtn">+ Add Resource</button>
+      </div>
+      <div class="table-wrap">
+        <table class="setup-table team-table">
+          <thead>
+            <tr>
+              <th>Resource</th>
+              <th>Role</th>
+              <th>Standard Rate Range</th>
+              <th>Default Billing Rate</th>
+              <th class="no-print"></th>
+            </tr>
+          </thead>
+          <tbody id="projectResourceBody"></tbody>
+        </table>
+      </div>
+      <div id="projectResourceEmpty" class="empty-state" hidden>No project resources yet. Add a resource to begin staffing the project.</div>
+    </section>
+
+    <section class="card">
+      <div class="section-heading">
+        <div>
+          <div class="step-label">Step 3</div>
+          <h2>Allocate Resources by Phase</h2>
+          <p>Enter hours/week and adjust billing rates as needed. A new resource starts at 0 hours/week in every phase.</p>
+        </div>
+      </div>
+      <div id="phasesContainer" class="phase-stack"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-heading">
+        <div>
+          <h2>Phase Financials</h2>
+          <p>Revenue and margin are calculated locally after the encrypted resource data is unlocked for this browser session.</p>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="summary-table">
+          <thead>
+            <tr>
+              <th>Phase</th>
+              <th>Weeks</th>
+              <th>Hours</th>
+              <th>Revenue</th>
+              <th>Margin $</th>
+              <th>Margin %</th>
+            </tr>
+          </thead>
+          <tbody id="phaseSummaryBody"></tbody>
+          <tfoot id="phaseSummaryFoot"></tfoot>
+        </table>
+      </div>
+    </section>
+
+    <section class="card no-print">
+      <div class="section-heading">
+        <div>
+          <h2>Data & Privacy Notes</h2>
+          <p>The distributed package contains encrypted resource data only. Plaintext consultant cost rates are never stored in the HTML, JavaScript, project JSON, or local browser storage.</p>
+        </div>
+      </div>
+      <div class="note-grid">
+        <div class="note-box"><strong>Cost data</strong><span>Actual resource cost/hour is stored only inside the encrypted resource payload and decrypted in memory after the correct password is entered.</span></div>
+        <div class="note-box"><strong>Authentication</strong><span>This local prototype uses password-based encryption. A future SharePoint deployment can replace this with tenant authentication and server-side cost calculations.</span></div>
+        <div class="note-box"><strong>Project files</strong><span>Use “Save Project JSON” to create portable project files that can be reopened later.</span></div>
+      </div>
+    </section>
+  </main>
+
+  <template id="phaseAllocationTemplate">
+    <article class="phase-card">
+      <div class="phase-allocation-header">
+        <div>
+          <h3 class="allocation-phase-name"></h3>
+          <div class="allocation-phase-dates"></div>
+        </div>
+        <div class="phase-week-display compact">
+          <span>Planning Weeks</span>
+          <strong class="phase-weeks">0.00</strong>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table class="resource-table">
+          <thead>
+            <tr>
+              <th>Resource</th>
+              <th>Role</th>
+              <th>Rate Range</th>
+              <th>Hours / Week</th>
+              <th>Billing Rate</th>
+              <th>Total Hours</th>
+              <th>Revenue</th>
+              <th>Margin %</th>
+            </tr>
+          </thead>
+          <tbody class="resource-body"></tbody>
+        </table>
+      </div>
+      <div class="phase-footer">
+        <span class="phase-warning"></span>
+        <strong class="phase-total"></strong>
+      </div>
+    </article>
+  </template>
+
+  <template id="resourceAllocationTemplate">
+    <tr class="resource-row">
+      <td><strong class="resource-name"></strong></td>
+      <td><span class="role-name"></span></td>
+      <td>
+        <div class="rate-slider-wrap">
+          <div class="rate-slider-labels"><span class="rate-min"></span><span class="rate-max"></span></div>
+          <input class="rate-slider" type="range" step="1" />
+          <div class="slider-status"></div>
+        </div>
+      </td>
+      <td><input class="hours-week" type="number" min="0" step="0.5" value="0" /></td>
+      <td>
+        <div class="rate-entry"><span>$</span><input class="billing-rate" type="number" min="0" step="1" /></div>
+        <div class="rate-message"></div>
+      </td>
+      <td class="row-hours">0</td>
+      <td class="row-revenue">$0</td>
+      <td><span class="margin-pill pending">Secure calc</span></td>
+    </tr>
+  </template>
+
+  <input type="file" id="projectFile" accept="application/json,.json" hidden />
+
+  <script id="defaultPricingConfig" type="application/json">
+  {
+    "roles": [
+      { "id": "junior-consultant", "name": "Junior Consultant", "minimumRate": 125, "maximumRate": 175, "defaultRate": 150 },
+      { "id": "consultant", "name": "Consultant", "minimumRate": 150, "maximumRate": 200, "defaultRate": 175 },
+      { "id": "senior-consultant", "name": "Senior Consultant", "minimumRate": 175, "maximumRate": 225, "defaultRate": 200 },
+      { "id": "consultant-manager", "name": "Consultant Manager", "minimumRate": 200, "maximumRate": 250, "defaultRate": 225 },
+      { "id": "consultant-director", "name": "Consultant Director", "minimumRate": 225, "maximumRate": 275, "defaultRate": 250 },
+      { "id": "managing-director", "name": "Managing Director", "minimumRate": 250, "maximumRate": 300, "defaultRate": 275 },
+      { "id": "principal", "name": "Principal", "minimumRate": 275, "maximumRate": 350, "defaultRate": 300 }
+    ],
+    "resources": [],
+    "marginTargets": { "minimum": 40, "target": 50, "excellent": 55 },
+    "security": { "mode": "encrypted-local-data", "costRatesEmbedded": false }
+  }
   </script>
+
+
+  <section id="reportView" class="report-view" aria-hidden="true"></section>
+
+  <script src="protected_resources.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
